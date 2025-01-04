@@ -282,11 +282,6 @@ F4:: {
     ToolTip("") ; Hide the tooltip after a short delay
 }
 
-=:: {
-    DetainGUI.GetClientPos(&X, &Y)
-    MsgBox(X ", " Y)
-}
-
 f:: {
     if (!settings["ToggleInstabreak"]) {
         Sleep(2100)
