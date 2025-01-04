@@ -49,3 +49,4 @@ This section of the Settings menu allows you to control what sound will play whe
 - luigistyle: Script creator
 - Enskeria: Detain timings
 - Shadow Rizzard: Instabreak detain timings
+- TheArkive: Creator of the [JXON_ahk2](https://github.com/TheArkive/JXON_ahk2) library
