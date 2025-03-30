@@ -16,21 +16,34 @@ AdjustedSettingsFontSize := 15*ScreenSizeCoefficient
 AdjustedDetainGUIWidth := 100*ScreenSizeCoefficient
 AdjustedDetainGUIHeight := 57*ScreenSizeCoefficient
 AdjustedSettingsWidth := 400*ScreenSizeCoefficient
-AdjustedSettingsHeight := 450*ScreenSizeCoefficient
+AdjustedSettingsHeight := 750*ScreenSizeCoefficient
 
 ; Define settings file
 settingsFile := "settings.json"
 
 ; Create the settings file if it doesn't exist already
 if !FileExist(settingsFile) {
-	defaultSettings := '{"ToggleBackground":1,"ToggleColoredText":1,"GUIPosX":' A_ScreenWidth-AdjustedDetainGUIWidth-20 ',"GUIPosY":0,"Sound":"*-1","ToggleInstabreak":0,"ToggleMonitorScaling":1}'
-	dumpDefaultSettings := Jxon_Load(&defaultSettings)
-	FileAppend(Jxon_Dump(dumpDefaultSettings), settingsFile)
+	defaultSettings := 
+    (
+        '{
+            "GUIPosX":' A_ScreenWidth-AdjustedDetainGUIWidth-20 ',
+            "GUIPosY": 0,
+            "Sound":"*-1",
+            "SuperHotkey": "f",
+            "ToggleBackground":1,
+            "ToggleColoredText":1,
+            "ToggleInstabreak":0,
+            "ToggleMonitorScaling":1
+        }'
+    )
+    dumpDefaultSettings := Jxon_Load(&defaultSettings)
+	FileAppend(Jxon_Dump(dumpDefaultSettings, 1), settingsFile)
 }
 
 ; Read and load contents of settings.json
 settingsFileContent := FileRead(settingsFile)
 settings := Jxon_Load(&settingsFileContent)
+UpdateHotkey()
 
 ; Initialize Timer GUI and its variables
 global DetainGUI := Gui()
@@ -161,7 +174,10 @@ HandleSettingsGUIChange(control, info) {
         DetainGUI.GetClientPos(&X, &Y)
         settings["GUIPosX"] := X
         settings["GUIPosY"] := Y
-
+    } else if (control.Type = "Hotkey") {
+        hotkeyValue := control.Value
+        settings["SuperHotkey"] := hotkeyValue
+        UpdateHotkey()
     }
     WriteSettingsToFile()
     CheckSettings()
@@ -219,7 +235,7 @@ OpenFileSelect(*) {
 }
 
 ResetSound(*) {
-    CurrentSoundVar.Value := "Windows Default Beep"
+    CurrentSoundVar.Value := "Default Windows Beep"
     settings["Sound"] := "*-1"
     WriteSettingsToFile()
 }
@@ -241,7 +257,14 @@ CreateSettingsGUI() {
             checkbox.OnEvent("Click", HandleSettingsGUIChange)
         }    
     }
-    SettingsGUI.Add("GroupBox", "y+" 15*ScreenSizeCoefficient " w" 220*ScreenSizeCoefficient " h" 185*ScreenSizeCoefficient, "Preset Alignments")
+    
+    ; Hotkey Box
+    SettingsGUI.Add("GroupBox", "w" 220*ScreenSizeCoefficient " h" 80*ScreenSizeCoefficient, "Super Hotkey")
+    global SuperHotkeyBox := SettingsGUI.Add("Hotkey", "W" 200*ScreenSizeCoefficient " XP+10 YP+" 35*ScreenSizeCoefficient " vChosenHotkey", settings["SuperHotkey"])
+    SuperHotkeyBox.OnEvent("Change", HandleSettingsGUIChange)
+
+    ; Preset Timer Alignments
+    SettingsGUI.Add("GroupBox", "x" 20*ScreenSizeCoefficient " w" 220*ScreenSizeCoefficient " h" 185*ScreenSizeCoefficient, "Preset Alignments")
     Button_TL := SettingsGUI.Add("Button", "w" 100*ScreenSizeCoefficient " h" 60*ScreenSizeCoefficient " XP+" 5*ScreenSizeCoefficient " YP+" 35*ScreenSizeCoefficient, "Top Left")
     Button_TL.OnEvent("Click", HandleSettingsGUIChange)
     Button_TR := SettingsGUI.Add("Button", "w" 100*ScreenSizeCoefficient " h" 60*ScreenSizeCoefficient " XP+" 110*ScreenSizeCoefficient " YP", "Top Right")
@@ -250,6 +273,8 @@ CreateSettingsGUI() {
     Button_BR.OnEvent("Click", HandleSettingsGUIChange)
     Button_BL := SettingsGUI.Add("Button", "w" 100*ScreenSizeCoefficient " h" 60*ScreenSizeCoefficient " XP-" 110*ScreenSizeCoefficient " YP", "Bottom Left")
     Button_BL.OnEvent("Click", HandleSettingsGUIChange)
+
+    ; Custom Sound Settingsi'
     SettingsGUI.Add("GroupBox", "x" 20*ScreenSizeCoefficient " w" 220*ScreenSizeCoefficient " h" 175*ScreenSizeCoefficient, "Custom Sound")
     CurrentSoundText := SettingsGUI.Add("Text", "W" 210*ScreenSizeCoefficient " XP+5 YP+" 35*ScreenSizeCoefficient, "Selected File:")
     CurrentSoundText.SetFont("s" AdjustedSettingsFontSize/1.5)
@@ -263,6 +288,7 @@ CreateSettingsGUI() {
     Button_ResetSound := SettingsGUI.Add("Button", "W" 210*ScreenSizeCoefficient " H" 30*ScreenSizeCoefficient " XP YP+" 35*ScreenSizeCoefficient, "Reset Sound to Default")
     Button_ResetSound.SetFont("s" AdjustedSettingsFontSize/1.5)
     Button_ResetSound.OnEvent("Click", ResetSound)
+
     SettingsGUI.Show
 }
 
@@ -282,14 +308,21 @@ F4:: {
     ToolTip("") ; Hide the tooltip after a short delay
 }
 
-f:: {
+UpdateHotkey() {
+    global settings
+    Hotkey("~" settings["SuperHotkey"], ExecuteTimer) ; Pass function reference directly
+}
+
+
+ExecuteTimer(Key) {
+    global settings
     if (!settings["ToggleInstabreak"]) {
         Sleep(2100)
 
         ;Detain 1
         Timer(14)
         Sleep(100)
-        
+
         ;Detain 2
         Timer(14)
         Sleep(222)
@@ -298,7 +331,7 @@ f:: {
         Timer(14)
         Sleep(965)
 
-        ;Detain 4;
+        ;Detain 4
         Timer(13)
         Sleep(316)
 
@@ -358,71 +391,71 @@ f:: {
         ;Detain 1
         Timer(5)
         Sleep(100)	
-    
+
         ;Detain 2
         Timer(14)
         Sleep(100)
-        
+
         ;Detain 3
         Timer(14)
         Sleep(222)
-    
+
         ;Detain 4
         Timer(14)
         Sleep(965)
-    
+
         ;Detain 5;
         Timer(13)
         Sleep(316)
-    
+
         ;Cleanse 1
-    
+
         ;Detain 6
         Timer(21)
         Sleep(30)
-    
+
         ;Detain 7
         Timer(14)
         Sleep(1120)
-    
+
         ;Detain 8
         Timer(13)
         Sleep(950)
-    
+
         ;Cleanse 2
-    
+
         ;Detain 9
         Timer(20)
         Sleep(150)
-    
+
         ;Detain 10
         Timer(14)
         Sleep(150)
-    
+
         ;Detain 11
         Timer(14)
         Sleep(850)
-    
+
         ;Detain 12
         Timer(20)
         Sleep(100)
-    
+
         ;Cleanse 3
-    
+
         ;Detain 13
         Timer(14)
         Sleep(300)
-    
+
         ;Detain 14
         Timer(14)
         Sleep(500)
-    
+
         ;Detain 15
         Timer(20)
-    
+
         ;Detain 16
         Timer(14)
-    
+
         ;Detain 17
         Timer(14)
     }
