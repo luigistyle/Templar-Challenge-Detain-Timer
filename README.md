@@ -39,6 +39,9 @@ If you are rallying to a flag and picking up the relic immediately afterwards in
 By default, the script makes all of its GUI elements smaller or larger depending on the resolution of your monitor. You may disable this functionality by disabling this setting. 
 Note that modifying this setting will automatically reload the script in order to apply the changes, and that the alignment of the timer may be incorrect after said reload.
 
+### Super Hotkey
+Inside the hotkey box in this section, you may modify the hotkey that triggers the timer to your liking.
+
 ### Preset Alignments
 Clicking one of the 4 buttons in this section will automatically align the timer to the specified corner of your screen.
 
