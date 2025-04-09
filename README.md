@@ -9,7 +9,7 @@ If you prefer to install the script manually, you may also download the uncompil
 ## Usage Instructions
 Once you have downloaded the script and ran the script, it will automatically create a `settings.json` file in the directory the script is located in with the script's default settings. You will also notice the timer show up in the top-right corner of your screen. Listed below are the valid controls for the script:
 
-- F: Activate the timer
+- F: Activate the timer. The key for this bind can be changed in the Settings menu
 - F3: Open the Settings menu
 - F4: Enable draggability (click and drag the timer window to move it around!)
 - Ctrl+J: Reset the timer
